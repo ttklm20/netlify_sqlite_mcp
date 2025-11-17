@@ -181,4 +181,4 @@ def backup_database(backup_path: str = None) -> list:
 if __name__ == "__main__":
 
     # 运行MCP服务器，端口在run方法中指定
-    mcp.run(transport="sse", port=9000)
+    mcp.run(transport="sse", host="0.0.0.0", port=9000)
