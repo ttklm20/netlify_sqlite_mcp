@@ -2,6 +2,7 @@ import sqlite3
 import json
 from datetime import datetime
 
+
 def create_fund_database():
     """创建基金数据库和表结构"""
     conn = sqlite3.connect('fund_data.db')
@@ -43,6 +44,7 @@ def create_fund_database():
     conn.close()
     print("基金数据库创建成功！")
 
+
 def clean_percentage_value(value):
     """清理百分比数值，转换为小数"""
     if not value or value == '' or value == 'None' or value is None:
@@ -53,6 +55,7 @@ def clean_percentage_value(value):
         return float(cleaned_value) / 100
     except (ValueError, TypeError):
         return None
+
 
 def clean_numeric_value(value):
     """清理普通数值"""
@@ -66,6 +69,14 @@ def clean_numeric_value(value):
     except (ValueError, TypeError):
         return None
 
+
+def clean_empty_value(value):
+    if not value or value == '' or value == 'None' or value is None:
+        return None
+    else:
+        return value
+
+
 def clean_int_to_boolean(value, default="否"):
     """清理整数值"""
     if not value or value == '' or value == 'None' or value is None:
@@ -74,6 +85,7 @@ def clean_int_to_boolean(value, default="否"):
         return "是"
     except (ValueError, TypeError):
         return default
+
 
 def insert_fund_data(fund_data):
     """插入基金数据"""
@@ -96,28 +108,28 @@ def insert_fund_data(fund_data):
         ''', (
             fund_data.get('基金代码'),
             fund_data.get('基金简称'),
-            fund_data.get('基金简拼'),
-            fund_data.get('更新日期'),
-            fund_data.get('单位净值').replace('%', ''),
-            fund_data.get('累计净值').replace('%', ''),
-            fund_data.get('日增长率'),
-            fund_data.get('近1周'),
-            fund_data.get('近1月'),
-            fund_data.get('近3月'),
-            fund_data.get('近6月'),
-            fund_data.get('近1年'),
-            fund_data.get('近2年'),
-            fund_data.get('近3年'),
-            fund_data.get('今年来'),
-            fund_data.get('成立来'),
-            fund_data.get('发行日期'),
+            clean_empty_value(fund_data.get('基金简拼')),
+            clean_empty_value(fund_data.get('更新日期')),
+            clean_empty_value(fund_data.get('单位净值', '').replace('%', '')),
+            clean_empty_value(fund_data.get('累计净值', '').replace('%', '')),
+            clean_empty_value(fund_data.get('日增长率')),
+            clean_empty_value(fund_data.get('近1周')),
+            clean_empty_value(fund_data.get('近1月')),
+            clean_empty_value(fund_data.get('近3月')),
+            clean_empty_value(fund_data.get('近6月')),
+            clean_empty_value(fund_data.get('近1年')),
+            clean_empty_value(fund_data.get('近2年')),
+            clean_empty_value(fund_data.get('近3年')),
+            clean_empty_value(fund_data.get('今年来')),
+            clean_empty_value(fund_data.get('成立来')),
+            clean_empty_value(fund_data.get('发行日期')),
             clean_int_to_boolean(fund_data.get('是否可购')),
-            fund_data.get('自定义2'),
-            fund_data.get('自定义3'),
-            fund_data.get('手续费'),
+            clean_empty_value(fund_data.get('自定义2')),
+            clean_empty_value(fund_data.get('自定义3')),
+            clean_empty_value(fund_data.get('手续费')),
             clean_int_to_boolean(fund_data.get('折扣')),
-            fund_data.get('自定义5'),
-            fund_data.get('自定义6')
+            clean_empty_value(fund_data.get('自定义5')),
+            clean_empty_value(fund_data.get('自定义6'))
         ))
         
         conn.commit()
@@ -130,6 +142,7 @@ def insert_fund_data(fund_data):
         conn.rollback()
     finally:
         conn.close()
+
 
 def query_fund_data(fund_code=None, fund_name_keyword=None):
     """查询基金数据
@@ -159,6 +172,7 @@ def query_fund_data(fund_code=None, fund_name_keyword=None):
     
     return column_names, results
 
+
 def fuzzy_search_funds(keyword):
     """基金名称模糊搜索，返回简化的结果"""
     conn = sqlite3.connect('fund_data.db')
@@ -176,6 +190,7 @@ def fuzzy_search_funds(keyword):
     conn.close()
     
     return results
+
 
 def display_fund_data(column_names, data):
     """显示基金数据"""
@@ -200,6 +215,7 @@ def display_fund_data(column_names, data):
                 print(f"{column_names[i]}: {value}")
         print("-" * 100)
 
+
 def display_search_results(results):
     """显示模糊搜索结果"""
     if not results:
@@ -223,6 +239,7 @@ def display_search_results(results):
         display_name = fund_name[:28] + "..." if len(fund_name) > 30 else fund_name
         
         print(f"{fund_code:<10} {display_name:<30} {net_value_display:<10} {growth_display:<10}")
+
 
 def search_funds_interactive():
     """交互式基金搜索功能"""
@@ -276,6 +293,7 @@ def search_funds_interactive():
         else:
             print("无效选择，请重新输入")
 
+
 def main():
     # 创建数据库
     create_fund_database()
@@ -289,6 +307,7 @@ def main():
     
     # 启动交互式搜索
     search_funds_interactive()
+
 
 if __name__ == "__main__":
     main()
