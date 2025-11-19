@@ -1,6 +1,7 @@
 from fastmcp import FastMCP
 import sqlite3
 import os
+import json
 from pathlib import Path
 
 mcp = FastMCP("operateSQLite")
@@ -74,11 +75,14 @@ def execute_sql_internal(query: str) -> list:
                             ]
                             formatted_rows.append(",".join(formatted_row))
                         
-                        # 将列名和数据合并为CSV格式
+                        '''
                         if formatted_rows:
                             results.append("\n".join([",".join(columns)] + formatted_rows))
                         else:
                             results.append(",".join(columns))  # 只有列名没有数据的情况
+                        '''
+                        tmp = {"columns": columns, "data":formatted_rows}
+                        results.append(json.dumps(tmp, ensure_ascii=False))
                     
                     # 如果语句没有返回结果集 (INSERT, UPDATE, DELETE, CREATE等)
                     else:
