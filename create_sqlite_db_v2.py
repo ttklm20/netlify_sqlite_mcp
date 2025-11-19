@@ -15,26 +15,26 @@ def create_fund_database():
         基金简称 TEXT NOT NULL,
         基金简拼 TEXT,
         更新日期 TEXT,
-        单位净值 REAL,
-        累计净值 REAL,
-        日增长率 REAL,
-        近1周增长率 REAL,
-        近1月增长率 REAL,
-        近3月增长率 REAL,
-        近6月增长率 REAL,
-        近1年增长率 REAL,
-        近2年增长率 REAL,
-        近3年增长率 REAL,
-        今年来增长率 REAL,
-        成立来增长率 REAL,
+        单位净值 TEXT,
+        累计净值 TEXT,
+        日增长率 TEXT,
+        近1周收益率 TEXT,
+        近1月收益率 TEXT,
+        近3月收益率 TEXT,
+        近6月收益率 TEXT,
+        近1年收益率 TEXT,
+        近2年收益率 TEXT,
+        近3年收益率 TEXT,
+        今年来收益率 TEXT,
+        成立来收益率 TEXT,
         发行日期 TEXT,
-        是否可购 INTEGER,
-        自定义2 REAL,
-        自定义3 REAL,
-        手续费 REAL,
-        折扣 INTEGER,
-        自定义5 REAL,
-        自定义6 INTEGER,
+        是否可购 TEXT,
+        自定义2 TEXT,
+        自定义3 TEXT,
+        手续费 TEXT,
+        折扣 TEXT,
+        自定义5 TEXT,
+        自定义6 TEXT,
         创建时间 TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
@@ -66,12 +66,12 @@ def clean_numeric_value(value):
     except (ValueError, TypeError):
         return None
 
-def clean_int_value(value, default=0):
+def clean_int_to_boolean(value, default="否"):
     """清理整数值"""
     if not value or value == '' or value == 'None' or value is None:
         return default
     try:
-        return int(value)
+        return "是"
     except (ValueError, TypeError):
         return default
 
@@ -87,9 +87,9 @@ def insert_fund_data(fund_data):
         cursor.execute('''
         INSERT OR REPLACE INTO 基金数据 (
             基金代码, 基金简称, 基金简拼, 更新日期, 单位净值,
-            累计净值, 日增长率, 近1周增长率, 近1月增长率,
-            近3月增长率, 近6月增长率, 近1年增长率, 近2年增长率,
-            近3年增长率, 今年来增长率, 成立来增长率, 发行日期,
+            累计净值, 日增长率, 近1周收益率, 近1月收益率,
+            近3月收益率, 近6月收益率, 近1年收益率, 近2年收益率,
+            近3年收益率, 今年来收益率, 成立来收益率, 发行日期,
             是否可购, 自定义2, 自定义3, 手续费, 折扣,
             自定义5, 自定义6
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -98,26 +98,26 @@ def insert_fund_data(fund_data):
             fund_data.get('基金简称'),
             fund_data.get('基金简拼'),
             fund_data.get('更新日期'),
-            clean_numeric_value(fund_data.get('单位净值')),
-            clean_numeric_value(fund_data.get('累计净值')),
-            clean_percentage_value(fund_data.get('日增长率')),
-            clean_percentage_value(fund_data.get('近1周')),
-            clean_percentage_value(fund_data.get('近1月')),
-            clean_percentage_value(fund_data.get('近3月')),
-            clean_percentage_value(fund_data.get('近6月')),
-            clean_percentage_value(fund_data.get('近1年')),
-            clean_percentage_value(fund_data.get('近2年')),
-            clean_percentage_value(fund_data.get('近3年')),
-            clean_percentage_value(fund_data.get('今年来')),
-            clean_percentage_value(fund_data.get('成立来')),
+            fund_data.get('单位净值').replace('%', ''),
+            fund_data.get('累计净值').replace('%', ''),
+            fund_data.get('日增长率'),
+            fund_data.get('近1周'),
+            fund_data.get('近1月'),
+            fund_data.get('近3月'),
+            fund_data.get('近6月'),
+            fund_data.get('近1年'),
+            fund_data.get('近2年'),
+            fund_data.get('近3年'),
+            fund_data.get('今年来'),
+            fund_data.get('成立来'),
             fund_data.get('发行日期'),
-            clean_int_value(fund_data.get('是否可购'), 0),
-            clean_numeric_value(fund_data.get('自定义2')),
-            clean_percentage_value(fund_data.get('自定义3')),
-            clean_percentage_value(fund_data.get('手续费')),
-            clean_int_value(fund_data.get('折扣'), 1),
-            clean_percentage_value(fund_data.get('自定义5')),
-            clean_int_value(fund_data.get('自定义6'), 1)
+            clean_int_to_boolean(fund_data.get('是否可购')),
+            fund_data.get('自定义2'),
+            fund_data.get('自定义3'),
+            fund_data.get('手续费'),
+            clean_int_to_boolean(fund_data.get('折扣')),
+            fund_data.get('自定义5'),
+            fund_data.get('自定义6')
         ))
         
         conn.commit()
@@ -188,12 +188,12 @@ def display_fund_data(column_names, data):
     for row in data:
         for i, value in enumerate(row):
             # 格式化显示百分比数据
-            if column_names[i] in ['日增长率', '近1周增长率', '近1月增长率', 
-                                  '近3月增长率', '近6月增长率', '近1年增长率',
-                                  '近2年增长率', '近3年增长率', '今年来增长率',
-                                  '成立来增长率', '自定义3', '手续费', '自定义5']:
+            if column_names[i] in ['日增长率', '近1周收益率', '近1月收益率', 
+                                  '近3月收益率', '近6月收益率', '近1年收益率',
+                                  '近2年收益率', '近3年收益率', '今年来收益率',
+                                  '成立来收益率', '自定义3', '手续费', '自定义5']:
                 if value is not None:
-                    print(f"{column_names[i]}: {value:.2%}")
+                    print(f"{column_names[i]}: {value}")
                 else:
                     print(f"{column_names[i]}: None")
             else:
